@@ -336,13 +336,21 @@ public boolean equals(Object o) {
 
 #### 3、hashCode方法
 
-散列码（hash code）是由对象导出的一个整型值。散列码是没有规律的。如果x和y是两个不同的对象，x.hashCode()与y.hashCode()基本上不会相同。下图列出了几个通过String类的hashCode方法得到的散列码。
+##### 3.1 黄金三问
 
-| 字符串 | 散列值      |
-| ------ | ----------- |
-| Hello  | 69609650    |
-| Harry  | 69496448    |
-| Hacker | -2141031506 |
+- ###### 什么是hashCode
+
+  散列码（hash code）是由对象导出的一个整型值。散列码是没有规律的。如果x和y是两个不同的对象，x.hashCode()与y.hashCode()基本上不会相同。下图列出了几个通过String类的hashCode方法得到的散列码。
+
+  由于hashCode方法定义在Object类中，因此每个对象都有一个默认的散列值，其值为对象的存储地址
+
+- ###### 为什么存在
+
+  
+
+- ###### 怎么用，见下文
+
+##### 3.2 String类中的hashCode
 
 ```java
 // String类散列值计算
@@ -351,23 +359,160 @@ for(int i=0; i<length(); i++)
     hash = 31* hash + charAt(i);
 ```
 
-
+例如：
 
 ```java
 public class StringHashCode {
     public static void main(String[] args) {
-        String a = "hello";
-        String a2 = new String("hello");
-        System.out.println(a.equals(a2));
-        System.out.println(a.hashCode()+","+a2.hashCode());
+        String s = "OK";
+        StringBuilder sb = new StringBuilder(s);
+        System.out.println(s.hashCode()+" "+ sb.hashCode());
+        String t = new String("OK");
+        StringBuilder tb = new StringBuilder(t);
+        System.out.println(t.hashCode()+" "+ tb.hashCode());
     }
 }
 输出：
-true
-99162322,99162322
+2524 1094834071
+2524 1761061602
 ```
 
+| 对象 | 散列值     |
+| ---- | ---------- |
+| s    | 2524       |
+| sb   | 1094834071 |
+| t    | 2524       |
+| tb   | 1761061602 |
+
+注意：
+1）字符串s与t的散列码相同，因为字符串的散列码是由内容导出的。
+2）字符串缓冲sb与tb的散列码不同，因为StringBuffer类中没定义hashCode方法，它的散列码是由Object类的默认hashCode方法导出的对象存储地址。
+
+##### 3.3 重新定义hashCode方法
+
+如果重新定义equals方法，就必须重新定义hashCode方法，以便用户可以将对象插入到散列表中。
+
+hashCode方法应该返回一个整型值（也可以是负数），并合理地组合实例域的散列码，以便能够让各个不同的对象产生的散列码更加均匀。
+
+例如：Employee类的hashCode方法
+
+```java
+public class Employee {
+    public int hashCode() {
+        return 7 * name.hashCode() 
+            + 11 * new Double(salary).hashCode()
+            + 13 * hireDay.hashCode();
+    }
+}
+
+// 优化版
+// 使用null安全的方法Objects.hashCode。如果其参数为null，这个方法会返回0，否则返回对参数调用hashCode的结果。
+// 使用静态方法Double.hashCode来避免创建Double对象。
+public class Employee {
+    public int hashCode() {
+        return 7 * Objects.hashCode(name) 
+            + 11 * Double.hashCode(salary)
+            + 13 * Objects.hashCode(hireDay);
+    }
+}
+
+// 使用Objects.hash并提供多个参数。
+// 这个方法会对各个参数调用Objects.hasCode，并组合这些散列值。
+public class Employee {
+    public int hashCode() {
+        return Objects.hasCode(name, salary, hireDay);
+    }
+}
+```
+
+Equals与hashCode的定义必须一致：**如果x.equals(y)返回true，那么x.hashCode( )就必须与y.hashCode( )具有相同的值**。例如，如果用定义的Employee.equals比较雇员的ID，那么hashCode方法就需要散列ID，而不是雇员的姓名或存储地址。
+
+如果**存在数组类型的域，那么可以使用静态的Arrays.hashCode方法计算一个散列码**，这个散列码由数组元素的散列码组成。
+
 #### 4、toString方法
+
+##### 4.1 黄金三问
+
+- 什么是toString方法
+
+  用于返回表示对象值的字符串
+
+- 为什么存在toString方法
+
+  方便日志打印
+
+- 怎么用，见下文
+
+##### 4.2 打印的格式
+
+绝大多数（但不是全部）的toString方法都遵循这样的格式：**类的名字，随后是一对方括号括起来的域值**。
+
+Point类的toString方法，`java.awt.Point[x=10,y=20]`
+
+例如：
+
+```java
+// Employee类
+public String toString() {
+    return getClass().getName() 
+        + "[name=" + name
+        + ",salary=" + salary
+        + ",hireDay=" + hireDay
+        + "]";
+}
+
+// Manager类
+public class Manager extends Employee {
+    public String toString() {
+        return super.toString()
+            + "[bonus=" + bonus
+            + "]";
+    }
+}
+输出：
+    Manager[name=...,salary=...,hireDay=...][bonus=...]
+```
+
+##### 4.3 随处可见的toString()
+
+**只要对象与一个字符串通过操作符“+”连接起来，Java编译就会自动地调用toString方法**，以便获得这个对象的字符串描述。例如，
+
+```java
+Point p = new Point(10, 20);
+// 自动调用p.toString()
+String message = "The current position is " + p; 
+```
+
+在调用x.toString()的地方可以用`""+x`替代。这条语句将一个空串与x的字符串表示相连接。这里x就是x.toString()。
+
+与toString()不同的是，如果x是基本类型，这条语句照样能够执行。
+
+##### 4.4 Object中的toString()
+
+```java
+System.out.println(System.out)
+输出：
+    java.io.PrintStream@2f6684
+// 之所以得到这样的结果是因为PrintStream类没有覆盖toString方法    
+```
+
+##### 4.5 数组中的toString()
+
+数组继承了object类的toString方法，数组类型将按照旧的格式打印。
+
+例如：
+
+```java
+int[] luckyNumbers = {2,3,5,7,11,13};
+String s = "" + luckyNumbers;
+// 生成字符串"[l@1a46e30"（前缀[l表明是一个整型数组）。修正的方式是调用静态方法Arrays.toString。
+String s = Arrays.toString(luckyNumbers);
+// 生成字符串"[2,3,5,7,11,13]"。
+```
+
+想要打印多维数组（即，数组的数组）则需要调用Arrays.deepToString方法。
+
+
 
 
 
