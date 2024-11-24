@@ -334,57 +334,38 @@ public boolean equals(Object o) {
 }
 ```
 
-
-
-
-
-
-
-
-
-
-
 #### 3、hashCode方法
 
-super关键字：
-super不是一个对象的引用，不能将super赋给另一个对象变量，它只是一个指示编译器调用超类方法的特殊关键字。
+散列码（hash code）是由对象导出的一个整型值。散列码是没有规律的。如果x和y是两个不同的对象，x.hashCode()与y.hashCode()基本上不会相同。下图列出了几个通过String类的hashCode方法得到的散列码。
 
-重写的方法参数类型、个数，方法名要父类相同
-
-泛型中的方法重写
+| 字符串 | 散列值      |
+| ------ | ----------- |
+| Hello  | 69609650    |
+| Harry  | 69496448    |
+| Hacker | -2141031506 |
 
 ```java
-class Employee<T> {
-    private T name;
-    
-    public T getName(){
-        return name;
-    }
-    
-    public void setName(T name){
-        this.name = name;
-    }
-}
-
-class Manager<T> extends Employee<T>{
-    private Integer id;
-    
-    public Integer getId(){
-        return id;
-    }
-    
-    public void setId(Integer id){
-        this.id = id;
-    }
-
-    @Override
-    public void setName(T name) {
-        System.out.println("Manager.setName");
-    }
-}
+// String类散列值计算
+int hash = 0;
+for(int i=0; i<length(); i++) 
+    hash = 31* hash + charAt(i);
 ```
 
 
+
+```java
+public class StringHashCode {
+    public static void main(String[] args) {
+        String a = "hello";
+        String a2 = new String("hello");
+        System.out.println(a.equals(a2));
+        System.out.println(a.hashCode()+","+a2.hashCode());
+    }
+}
+输出：
+true
+99162322,99162322
+```
 
 #### 4、toString方法
 
