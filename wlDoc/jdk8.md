@@ -8,9 +8,293 @@
 
 ❑ 开发自己的自定义收集器
 
+#### 1、jdk8中的Stream
+
+流可以用类似于数据库的操作帮助你处理集合。你可以把Java 8的流看作花哨又懒惰的数据集迭代器。
+
+它们支持两种类型的操作：**中间操作（如filter或map）和终端操作（如count、findFirst、forEach和reduce）**
+
+```java
+Map<Currency, List<Transaction>> transactionsByCurrencies=
+	transactions.stream().collect(groupingBy(Transaction::getCurrency));
+```
+
+<img src="jdk8.assets/image-20250105112027824.png" alt="image-20250105112027824" style="zoom:50%;" /> 
+
+#### 2、函数式接口
+
+1、定义函数式接口（Function Interface）：一个有且仅有一个抽象方法，多个非抽象方法的接口（default方法）。函数式接口可以被隐式转换为lambda表达式。
+
+2、语法定义了一个函数式接口：
+
+```java
+@FunctionalInterface
+interface GreetingService {
+    void sayMessage(String message);
+}
+```
+
+使用Lambda表达式来表示该接口的一个实现（注：java8之前一般都是用匿名类实现）：
+
+```java
+GreetingService greetService1 = message -> System.out.println("Hello " + message);
+```
+
+3、Lambdas及函数式接口例子
+
+| 介绍                                        | Lambda示例                                                   | 对应的函数式接口                                             |
+| ------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 布尔表达式：接受一个入参，返回boolean       | (List<String> list) ->list.isEmpty()                         | **Predicate**<List<String>>                                  |
+| 创建对象：无入参，有返回                    | () -> new Apple(10)                                          | **Supplier**<Apple>                                          |
+| 消费一个对象：接受一个入参，无返回          | (Apple a) -> System.out.printIn(a.getWeight())               | **Consumer**<Apple>                                          |
+| 从一个对象中选择/提取：接受一个入参，有返回 | (String s) -> s.length()                                     | **Function**<String, Integer>或ToIntFunction<String>         |
+| 合并两个值                                  | (int a, int b) -> a*b                                        | **IntBinaryOperator**                                        |
+| 比较两个值                                  | (Apple a1, Apple a2) -> a1.getWeight().compareTo(a2.getWeight()) | Comparator<Apple>或BiFunction<Apple, Apple, Integer>或ToIntBiFunction<Apple, Apple> |
+
+示例：
+
+Consumer
+
+```java
+public void test1() {
+    //未使用Lambda表达式
+    Learn("java", new Consumer<String>() {
+        @Override
+        public void accept(String s) {
+            System.out.println("学习什么？ " + s);
+        }
+    });
+    System.out.println("====================");
+    //使用Lambda表达
+    Learn("html", s -> System.out.println("学习什么？ " + s));
+}
+
+private void Learn(String s, Consumer<String> stringConsumer) {
+    stringConsumer.accept(s);
+}
+```
+
+​	
+
+Function
+
+```java
+public void test3() {
+    //使用Lambda表达式
+    Employee employee = new Employee(1001, "Tom", 45, 10000);
+    Function<Employee, String> func1 = e -> e.getName();
+    System.out.println(func1.apply(employee));
+    System.out.println("====================");
+
+    //使用方法引用
+    Function<Employee,String> func2 = Employee::getName;
+    System.out.println(func2.apply(employee));
+}
+
+@Data
+@AllArgsConstructor
+public class Employee{
+    private int id;
+    private String name;
+    private int age;
+    private int salary;
+}
+```
+
+```java
+//使用匿名内部类
+Function<Double, Long> func = new Function<Double, Long>() {
+    @Override
+    public Long apply(Double aDouble) {
+        return Math.round(aDouble);
+    }
+};
+System.out.println(func.apply(10.5));
+System.out.println("====================");
+
+//使用Lambda表达式
+Function<Double, Long> func1 = d -> Math.round(d);
+System.out.println(func1.apply(12.3));
+System.out.println("====================");
+
+//使用方法引用
+Function<Double,Long>func2 = Math::round;
+System.out.println(func2.apply(12.6));
+```
+
+Supplier
+
+```java
+public void test2() {
+    //未使用Lambda表达式
+    Supplier<String> sp = new Supplier<String>() {
+        @Override
+        public String get() {
+            return new String("我能提供东西");
+        }
+    };
+    System.out.println(sp.get());
+
+    //使用Lambda表达式
+    Supplier<String> sp1 = () -> new String("我能通过lambda提供东西");
+    System.out.println(sp1.get());
+```
 
 
-#### 1、Collectors类
+
+#### 3、Collector
+
+```java
+public interface Collector<T, A, R> {
+    /**
+     * A function that creates and returns a new mutable result container.
+     *
+     * @return a function which returns a new, mutable result container
+     */
+    Supplier<A> supplier();
+
+    /**
+     * A function that folds a value into a mutable result container.
+     *
+     * @return a function which folds a value into a mutable result container
+     */
+    BiConsumer<A, T> accumulator();
+
+    /**
+     * A function that accepts two partial results and merges them.  The
+     * combiner function may fold state from one argument into the other and
+     * return that, or may return a new result container.
+     *
+     * @return a function which combines two partial results into a combined
+     * result
+     */
+    BinaryOperator<A> combiner();
+
+    /**
+     * Perform the final transformation from the intermediate accumulation type
+     * {@code A} to the final result type {@code R}.
+     *
+     * <p>If the characteristic {@code IDENTITY_TRANSFORM} is
+     * set, this function may be presumed to be an identity transform with an
+     * unchecked cast from {@code A} to {@code R}.
+     *
+     * @return a function which transforms the intermediate result to the final
+     * result
+     */
+    Function<A, R> finisher();
+
+    /**
+     * Returns a {@code Set} of {@code Collector.Characteristics} indicating
+     * the characteristics of this Collector.  This set should be immutable.
+     *
+     * @return an immutable set of collector characteristics
+     */
+    Set<Characteristics> characteristics();
+
+    /**
+     * Returns a new {@code Collector} described by the given {@code supplier},
+     * {@code accumulator}, and {@code combiner} functions.  The resulting
+     * {@code Collector} has the {@code Collector.Characteristics.IDENTITY_FINISH}
+     * characteristic.
+     *
+     * @param supplier The supplier function for the new collector
+     * @param accumulator The accumulator function for the new collector
+     * @param combiner The combiner function for the new collector
+     * @param characteristics The collector characteristics for the new
+     *                        collector
+     * @param <T> The type of input elements for the new collector
+     * @param <R> The type of intermediate accumulation result, and final result,
+     *           for the new collector
+     * @throws NullPointerException if any argument is null
+     * @return the new {@code Collector}
+     */
+    public static<T, R> Collector<T, R, R> of(Supplier<R> supplier,
+                                              BiConsumer<R, T> accumulator,
+                                              BinaryOperator<R> combiner,
+                                              Characteristics... characteristics) {
+        Objects.requireNonNull(supplier);
+        Objects.requireNonNull(accumulator);
+        Objects.requireNonNull(combiner);
+        Objects.requireNonNull(characteristics);
+        Set<Characteristics> cs = (characteristics.length == 0)
+                                  ? Collectors.CH_ID
+                                  : Collections.unmodifiableSet(EnumSet.of(Collector.Characteristics.IDENTITY_FINISH,
+                                                                           characteristics));
+        return new Collectors.CollectorImpl<>(supplier, accumulator, combiner, cs);
+    }
+
+    /**
+     * Returns a new {@code Collector} described by the given {@code supplier},
+     * {@code accumulator}, {@code combiner}, and {@code finisher} functions.
+     *
+     * @param supplier The supplier function for the new collector
+     * @param accumulator The accumulator function for the new collector
+     * @param combiner The combiner function for the new collector
+     * @param finisher The finisher function for the new collector
+     * @param characteristics The collector characteristics for the new
+     *                        collector
+     * @param <T> The type of input elements for the new collector
+     * @param <A> The intermediate accumulation type of the new collector
+     * @param <R> The final result type of the new collector
+     * @throws NullPointerException if any argument is null
+     * @return the new {@code Collector}
+     */
+    public static<T, A, R> Collector<T, A, R> of(Supplier<A> supplier,
+                                                 BiConsumer<A, T> accumulator,
+                                                 BinaryOperator<A> combiner,
+                                                 Function<A, R> finisher,
+                                                 Characteristics... characteristics) {
+        Objects.requireNonNull(supplier);
+        Objects.requireNonNull(accumulator);
+        Objects.requireNonNull(combiner);
+        Objects.requireNonNull(finisher);
+        Objects.requireNonNull(characteristics);
+        Set<Characteristics> cs = Collectors.CH_NOID;
+        if (characteristics.length > 0) {
+            cs = EnumSet.noneOf(Characteristics.class);
+            Collections.addAll(cs, characteristics);
+            cs = Collections.unmodifiableSet(cs);
+        }
+        return new Collectors.CollectorImpl<>(supplier, accumulator, combiner, finisher, cs);
+    }
+
+    /**
+     * Characteristics indicating properties of a {@code Collector}, which can
+     * be used to optimize reduction implementations.
+     */
+    enum Characteristics {
+        /**
+         * Indicates that this collector is <em>concurrent</em>, meaning that
+         * the result container can support the accumulator function being
+         * called concurrently with the same result container from multiple
+         * threads.
+         *
+         * <p>If a {@code CONCURRENT} collector is not also {@code UNORDERED},
+         * then it should only be evaluated concurrently if applied to an
+         * unordered data source.
+         */
+        CONCURRENT,
+
+        /**
+         * Indicates that the collection operation does not commit to preserving
+         * the encounter order of input elements.  (This might be true if the
+         * result container has no intrinsic order, such as a {@link Set}.)
+         */
+        UNORDERED,
+
+        /**
+         * Indicates that the finisher function is the identity function and
+         * can be elided.  If set, it must be the case that an unchecked cast
+         * from A to R will succeed.
+         */
+        IDENTITY_FINISH
+    }
+}
+```
+
+
+
+#### 1、Collector的静态工具类：Collectors类
 
 Collector会对元素应用一个转换函数（很多时候是不体现任何效果的恒等转换，例如toList），并将结果累积在一个数据结构中，从而产生这一过程的最终输出。
 
