@@ -49,42 +49,9 @@ import static java.util.stream.Collectors.＊;
 
 ##### 1.2 Collectors类的静态工厂方法
 
-| 工厂方法                                                     | 返回类型                 | 用于                                                         |
-| ------------------------------------------------------------ | ------------------------ | ------------------------------------------------------------ |
-| **toList**                                                   | **List<T>**              | **把流中所有项目收集到一个List**                             |
-| 示例：List<Dish> dishes = menuStream.collect(toList());      |                          |                                                              |
-| **toSet**                                                    | **Set<T>**               | **把流中所有项目收集到一个Set，删除重复项**                  |
-| 示例：Set<Dish> dishes = menuStream.collect(toSet());        |                          |                                                              |
-| **toCollection**                                             | **Collection<T>**        | **把流中所有项目收集到给定的供应源创建的集合**               |
-| 示例：Collection<Dish> dishes = menuStream.collect(toCollection(), ArrayList :: new) |                          |                                                              |
-| **counting**                                                 | **Long**                 | **计算流中元素的个数**                                       |
-| 示例：long howManyDishes = menuStream.collect(counting());   |                          |                                                              |
-| **summing**                                                  | **Integer**              | **对流中项目的一个整数属性求和**                             |
-| 示例：int totalCalories = menuStream.collect(summingInt(Dish :: getCalories)); |                          |                                                              |
-| **averagingInt**                                             | **Double**               | **计算流中项目Integer属性的平均值**                          |
-| 示例：double avgCalories = menuStream.collect(averagingInt(Dish :: getCalories)); |                          |                                                              |
-| **summarizingInt**                                           | **IntSummaryStatistics** | **收集关于流中项目Integer属性的统计值，例如最大、最小、总和与平均值** |
-| 示例：IntSummaryStatistics menuStatistics = menuStream.collect(summarizingInt(Dish :: getCalories)) |                          |                                                              |
-| **joining**                                                  | **String**               | **连接流中每个项目调用toString方法所生成的字符串**           |
-| 示例：String shortMenu = menuStream.map(Dish :: getName).collect(joining(",")); |                          |                                                              |
-| **maxBy**                                                    | **Optional<T>**          | **一个包裹了流中按照给定比较器选出的最大元素的Optional，或如果流为空则为Optional.empty()** |
-| 示例：Optional<Dish> fattest = menuStream.collect(maxBy(comparingInt(Dish :: getCalories))); |                          |                                                              |
-| **minBy**                                                    | **Optional<T>**          | **一个包裹了流中按照给定比较器选出的最小元素的Optional，或如果流为空则为Optional.empty()** |
-| 示例：Optional<Dish> lightest = menuStream.collect(minBy(comparingInt(Dish :: getCalories))); |                          |                                                              |
-| **reducing**                                                 | **归约操作产生的类型**   | **从一个作为累加器的初始值开，利用BinaryOperator与流中的元素逐个结合，从而将流归约为单个值** |
-| 示例：int totalCalories = menuStream.collect(reducing(0, Dish :: getCalories, Integer :: sum)); |                          |                                                              |
-| **groupingBy**                                               | **Map<K, List<T>>**      | **根据流中一个属性的值作分组，并将属性值作为结果Map的键**    |
-| 示例：Map<Dish.Type, List<Dish>> dishesByType = menuStream.collect(groupBy(Dish :: getType)); |                          |                                                              |
-| **partitioningBy**                                           | **Map<Boolean, List>**   | **根据流中每个项目应用谓词的结果来对项目进行分区**           |
-| 示例：Map<Boolean, List<Dish>> vegetarianDishes = menuStream.collect(partitioningBy(Dish :: isVegetarian)); |                          |                                                              |
-
-
-
-##### Collectors类的静态工厂方法
-
-| 工厂方法 | 返回类型 | 用于                         |
-| -------- | -------- | ---------------------------- |
-| toList   | List<T>  | 把流中所有项目收集到一个List |
+| 工厂方法   | 返回类型    | 用于                             |
+| ---------- | ----------- | -------------------------------- |
+| **toList** | **List<T>** | **把流中所有项目收集到一个List** |
 
 ```java
 List<Dish> dishes = menuStream.collect(toList());
@@ -92,9 +59,9 @@ List<Dish> dishes = menuStream.collect(toList());
 
 
 
-| 工厂方法 | 返回类型 | 用于                                    |
-| -------- | -------- | --------------------------------------- |
-| toSet    | Set<T>   | 把流中所有项目收集到一个Set，删除重复项 |
+| 工厂方法  | 返回类型   | 用于                                        |
+| --------- | ---------- | ------------------------------------------- |
+| **toSet** | **Set<T>** | **把流中所有项目收集到一个Set，删除重复项** |
 
 ```java
 Set<Dish> dishes = menuStream.collect(toSet());
@@ -102,9 +69,9 @@ Set<Dish> dishes = menuStream.collect(toSet());
 
 
 
-| 工厂方法     | 返回类型      | 用于                                       |
-| ------------ | ------------- | ------------------------------------------ |
-| toCollection | Collection<T> | 把流中所有项目收集到给定的供应源创建的集合 |
+| 工厂方法         | 返回类型          | 用于                                           |
+| ---------------- | ----------------- | ---------------------------------------------- |
+| **toCollection** | **Collection<T>** | **把流中所有项目收集到给定的供应源创建的集合** |
 
 ```java
 Collection<Dish> dishes = menuStream.collect(toCollection(), ArrayList :: new)
@@ -112,65 +79,103 @@ Collection<Dish> dishes = menuStream.collect(toCollection(), ArrayList :: new)
 
 
 
-| 工厂方法 | 返回类型 | 用于                                    |
-| -------- | -------- | --------------------------------------- |
-| toSet    | Set<T>   | 把流中所有项目收集到一个Set，删除重复项 |
+| **工厂方法** | **返回类型** | **用于**               |
+| ------------ | ------------ | ---------------------- |
+| **counting** | **Long**     | **计算流中元素的个数** |
+
+```java
+long howManyDishes = menuStream.collect(counting());
+```
 
 
 
-| 工厂方法 | 返回类型 | 用于                                    |
-| -------- | -------- | --------------------------------------- |
-| toSet    | Set<T>   | 把流中所有项目收集到一个Set，删除重复项 |
+| 工厂方法    | 返回类型    | 用于                             |
+| ----------- | ----------- | -------------------------------- |
+| **summing** | **Integer** | **对流中项目的一个整数属性求和** |
+
+```java
+int totalCalories = menuStream.collect(summingInt(Dish :: getCalories));
+```
 
 
 
-| 工厂方法 | 返回类型 | 用于                                    |
-| -------- | -------- | --------------------------------------- |
-| toSet    | Set<T>   | 把流中所有项目收集到一个Set，删除重复项 |
+| 工厂方法         | 返回类型   | 用于                                |
+| ---------------- | ---------- | ----------------------------------- |
+| **averagingInt** | **Double** | **计算流中项目Integer属性的平均值** |
+
+```java
+double avgCalories = menuStream.collect(averagingInt(Dish :: getCalories));
+```
 
 
 
-| 工厂方法 | 返回类型 | 用于                                    |
-| -------- | -------- | --------------------------------------- |
-| toSet    | Set<T>   | 把流中所有项目收集到一个Set，删除重复项 |
+| 工厂方法           | 返回类型                 | 用于                                                         |
+| ------------------ | ------------------------ | ------------------------------------------------------------ |
+| **summarizingInt** | **IntSummaryStatistics** | **收集关于流中项目Integer属性的统计值，例如最大、最小、总和与平均值** |
+
+```java
+IntSummaryStatistics menuStatistics = menuStream.collect(summarizingInt(Dish :: getCalories))
+```
 
 
 
-| 工厂方法 | 返回类型 | 用于                                    |
-| -------- | -------- | --------------------------------------- |
-| toSet    | Set<T>   | 把流中所有项目收集到一个Set，删除重复项 |
+| 工厂方法    | 返回类型   | 用于                                               |
+| ----------- | ---------- | -------------------------------------------------- |
+| **joining** | **String** | **连接流中每个项目调用toString方法所生成的字符串** |
+
+```java
+String shortMenu = menuStream.map(Dish :: getName).collect(joining(","));
+```
 
 
 
-| 工厂方法 | 返回类型 | 用于                                    |
-| -------- | -------- | --------------------------------------- |
-| toSet    | Set<T>   | 把流中所有项目收集到一个Set，删除重复项 |
+| 工厂方法  | 返回类型        | 用于                                                         |
+| --------- | --------------- | ------------------------------------------------------------ |
+| **maxBy** | **Optional<T>** | **一个包裹了流中按照给定比较器选出的最大元素的Optional，或如果流为空则为Optional.empty()** |
+
+```java
+Optional<Dish> fattest = menuStream.collect(maxBy(comparingInt(Dish :: getCalories)));
+```
 
 
 
-| 工厂方法 | 返回类型 | 用于                                    |
-| -------- | -------- | --------------------------------------- |
-| toSet    | Set<T>   | 把流中所有项目收集到一个Set，删除重复项 |
+| 工厂方法  | 返回类型        | 用于                                                         |
+| --------- | --------------- | ------------------------------------------------------------ |
+| **minBy** | **Optional<T>** | **一个包裹了流中按照给定比较器选出的最小元素的Optional，或如果流为空则为Optional.empty()** |
+
+```java
+Optional<Dish> lightest = menuStream.collect(minBy(comparingInt(Dish :: getCalories)));
+```
 
 
 
-| 工厂方法 | 返回类型 | 用于                                    |
-| -------- | -------- | --------------------------------------- |
-| toSet    | Set<T>   | 把流中所有项目收集到一个Set，删除重复项 |
+| 工厂方法     | 返回类型               | 用于                                                         |
+| ------------ | ---------------------- | ------------------------------------------------------------ |
+| **reducing** | **归约操作产生的类型** | **从一个作为累加器的初始值开，利用BinaryOperator与流中的元素逐个结合，从而将流归约为单个值** |
+
+```java
+int totalCalories = menuStream.collect(reducing(0, Dish :: getCalories, Integer :: sum));
+```
 
 
 
-| 工厂方法 | 返回类型 | 用于                                    |
-| -------- | -------- | --------------------------------------- |
-| toSet    | Set<T>   | 把流中所有项目收集到一个Set，删除重复项 |
+| 工厂方法       | 返回类型            | 用于                                                      |
+| -------------- | ------------------- | --------------------------------------------------------- |
+| **groupingBy** | **Map<K, List<T>>** | **根据流中一个属性的值作分组，并将属性值作为结果Map的键** |
+
+```java
+Map<Dish.Type, List<Dish>> dishesByType = menuStream.collect(groupBy(Dish :: getType));
+```
 
 
 
-| 工厂方法 | 返回类型 | 用于                                    |
-| -------- | -------- | --------------------------------------- |
-| toSet    | Set<T>   | 把流中所有项目收集到一个Set，删除重复项 |
+| 工厂方法           | 返回类型               | 用于                                               |
+| ------------------ | ---------------------- | -------------------------------------------------- |
+| **partitioningBy** | **Map<Boolean, List>** | **根据流中每个项目应用谓词的结果来对项目进行分区** |
 
-
+```java
+Map<Boolean, List<Dish>> vegetarianDishes = menuStream.collect(partitioningBy(Dish :: isVegetarian));
+```
 
 
 
