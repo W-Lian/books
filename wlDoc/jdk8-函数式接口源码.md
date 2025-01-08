@@ -164,7 +164,9 @@ public class FunctionExample {
         // if(Objects.isNull("等于某种情况"){
 
         // }
-        Function<String, String> targetDeal = paramNotNull().andThen(paramNotPositiveInteger()).andThen(paramFormat());
+        Function<String, String> targetDeal = paramNotNull()
+            .andThen(paramNotPositiveInteger())
+            .andThen(paramFormat());
         System.out.println(targetDeal.apply(null));
 
     }
@@ -181,7 +183,7 @@ public class FunctionExample {
     public static Function<String, String> paramNotPositiveInteger() {
         return (String param) -> {
             if (!StringUtils.isNumeric(param)) {
-                throw new IllegalArgumentException("参数不是正整数");
+                throw new IllegalArgumentException("参数不是数值型");
             }
             return param;
         };
@@ -191,6 +193,9 @@ public class FunctionExample {
         // 0012 -> 12 处理
         return (String param) -> {
             long paramLong = Long.parseLong(param);
+            if (paramLong <= 0) {
+                throw new IllegalArgumentException("参数不是正整数");
+            }
             return String.valueOf(paramLong);
         };
     }
@@ -200,7 +205,7 @@ public class FunctionExample {
 
 
 
-###### 2.1.2 compose
+###### 2.1.2 compose源码
 
 ```java
 default <V> Function<V, R> compose(Function<? super V, ? extends T> before) {
@@ -216,13 +221,7 @@ default <V> Function<V, R> compose(Function<? super V, ? extends T> before) {
 
 **返回值**：
 
-- 一个新的 
-
-  ```
-  Function
-  ```
-
-  ，其执行顺序是：
+- 一个新的 `Function`，其执行顺序是：
 
   1. 先调用 `before.apply(v)`。
   2. 将其结果传递给当前函数的 `apply(...)` 方法。
