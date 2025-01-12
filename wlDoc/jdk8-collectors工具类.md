@@ -37,6 +37,8 @@ Stream<Integer> stream = Stream.of(1, 2, 3, 4, 5);
 Optional<Integer> result = stream.collect(Collectors.reducing(Integer::sum));
 
 result.ifPresent(System.out::println);  // 输出 15
+
+// 请注意，就像流的任何单参数reduce操作一样，reduce(Integer::sum)返回的不是int而是Optional<Integer>，以便在空流的情况下安全地执行归约操作。
 ```
 
 
