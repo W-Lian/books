@@ -310,7 +310,7 @@ public class UserInputProcessing {
 2. `replaceSpaces`：将字符串中的空格替换为下划线。
 3. 通过 `compose`，`toLowerCase` 的结果传递给 `replaceSpaces`。
 
-### **与 `andThen` 的对比**
+###### 2.1.3  compose VS andThen 
 
 | 特性         | `compose`                       | `andThen`                      |
 | ------------ | ------------------------------- | ------------------------------ |
@@ -323,7 +323,7 @@ public class UserInputProcessing {
 - 使用 `compose` 时，先对数据执行预处理，再调用当前函数。
 - 使用 `andThen` 时，先调用当前函数，再对结果执行后续处理。
 
-### **注意事项**
+**注意事项**
 
 1. **输入输出类型**：
    - `before` 的输出类型必须与当前函数的输入类型兼容。
@@ -333,9 +333,7 @@ public class UserInputProcessing {
 3. **函数顺序**：
    - 顺序很重要：`compose` 是从后往前，`andThen` 是从前往后。
 
-
-
-### **实际应用场景**
+###### 2.1.4 实际应用场景
 
 1. **数据预处理管道**：
    - `compose` 常用于数据预处理逻辑。
@@ -346,9 +344,51 @@ public class UserInputProcessing {
 
 **总结**： `compose` 是函数式编程的重要工具，适用于需要先执行某些预处理逻辑的场景。它与 `andThen` 互补，提供了灵活的函数组合方式。
 
+##### 2.2 BiFunction
 
+```java
+package java.util.function;
 
+import java.util.Objects;
 
+@FunctionalInterface
+public interface BiFunction<T, U, R> {
+
+    R apply(T t, U u);
+
+    default <V> BiFunction<T, U, V> andThen(Function<? super R, ? extends V> after) {
+        Objects.requireNonNull(after);
+        return (T t, U u) -> after.apply(apply(t, u));
+    }
+}
+
+```
+
+##### 2.3 BinaryOperator
+
+当接收一个BinaryOperator函数时，使用该函数的apply方法时，两个入参、一个返回，3个参数的类型要一样
+
+```java
+package java.util.function;
+
+import java.util.Objects;
+import java.util.Comparator;
+
+@FunctionalInterface
+public interface BinaryOperator<T> extends BiFunction<T,T,T> {
+
+    public static <T> BinaryOperator<T> minBy(Comparator<? super T> comparator) {
+        Objects.requireNonNull(comparator);
+        return (a, b) -> comparator.compare(a, b) <= 0 ? a : b;
+    }
+
+    public static <T> BinaryOperator<T> maxBy(Comparator<? super T> comparator) {
+        Objects.requireNonNull(comparator);
+        return (a, b) -> comparator.compare(a, b) >= 0 ? a : b;
+    }
+}
+
+```
 
 
 
