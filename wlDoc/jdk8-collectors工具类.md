@@ -3,8 +3,7 @@
 ##### 2.1 一个参数源码
 
 ```java
-public static <T> Collector<T, ?, Optional<T>>
-    reducing(BinaryOperator<T> op) {
+public static <T> Collector<T, ?, Optional<T>> reducing(BinaryOperator<T> op) {
         class OptionalBox implements Consumer<T> {
             T value = null;
             boolean present = false;
@@ -322,5 +321,4 @@ Map<Dish.Type, List<Dish>> dishesByType = menuStream.collect(groupBy(Dish :: get
 ```java
 Map<Boolean, List<Dish>> vegetarianDishes = menuStream.collect(partitioningBy(Dish :: isVegetarian));
 ```
-
 
